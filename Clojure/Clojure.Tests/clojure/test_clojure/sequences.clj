@@ -1425,7 +1425,7 @@
 
 (deftest test-iteration
   ;; equivalence to line-seq
-  (let [readme #(.OpenText (System.IO.FileInfo. "clojure\\edn.clj")) ]      ;;; #(java.nio.file.Files/newBufferedReader (.toPath (java.io.File. "readme.txt")))
+  (let [readme #(.OpenText (System.IO.FileInfo. (System.IO.Path/Combine "clojure" "edn.clj"))) ]      ;;; #(java.nio.file.Files/newBufferedReader (.toPath (java.io.File. "readme.txt")))
     (is (= (with-open [r (readme)]
              (vec (iteration (fn [_] (.ReadLine r)))))                      ;;; .readLine
            (with-open [r (readme)]
