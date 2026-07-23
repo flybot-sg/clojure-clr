@@ -156,19 +156,23 @@
   (is (unchecked-int (char 0xFFFF)))
   (is (let [c (char 0xFFFF)] (unchecked-int c)))) ; force primitive char
 
+;;; PC: out-of-range unchecked float->integer conversions are unspecified by ECMA-335 --
+;;;     see https://github.com/dotnet/runtime/issues/101254 for context
+;;;     x64/.NET<7 return the integer-indefinite sentinel (Min-Value); ARM64 and .NET>=7
+;;;     saturate. Hence, for such cases, both MinValue and MaxValue are provided in a set.
 (def expected-casts   ;; for byte 127 => 255  (not signed), and other differences
   [
    [:input [-1 0 1 Byte/MaxValue Int16/MaxValue Int32/MaxValue Int64/MaxValue Single/MaxValue Double/MaxValue]]
    [char [:error (char 0) (char 1) (char 255) (char 32767) :error :error :error :error]]
-   [unchecked-char [(char 65535) (char 0) (char 1) (char 255) (char 32767) (char 65535) (char 65535) (char 0) (char 0)]]
+   [unchecked-char [(char 65535) (char 0) (char 1) (char 255) (char 32767) (char 65535) (char 65535) #{(char 0) (char 65535)} #{(char 0) (char 65535)}]]
    [byte [:error 0 1 Byte/MaxValue :error :error :error :error :error]]
-   [unchecked-byte [255 0 1 Byte/MaxValue 255 255 255 0 0]]
+   [unchecked-byte [255 0 1 Byte/MaxValue 255 255 255 #{0 255} #{0 255}]]
    [short [-1 0 1 Byte/MaxValue Int16/MaxValue :error :error :error :error]]
-   [unchecked-short [-1 0 1 Byte/MaxValue Int16/MaxValue -1 -1 0 0]]
+   [unchecked-short [-1 0 1 Byte/MaxValue Int16/MaxValue -1 -1 #{0 -1} #{0 -1}]]
    [int [-1 0 1 Byte/MaxValue Int16/MaxValue Int32/MaxValue :error :error :error]]
-   [unchecked-int [-1 0 1 Byte/MaxValue Int16/MaxValue Int32/MaxValue -1 Int32/MinValue Int32/MinValue]]
+   [unchecked-int [-1 0 1 Byte/MaxValue Int16/MaxValue Int32/MaxValue -1 #{Int32/MinValue Int32/MaxValue} #{Int32/MinValue Int32/MaxValue}]]
    [long [-1 0 1 Byte/MaxValue Int16/MaxValue Int32/MaxValue Int64/MaxValue :error :error]]
-   [unchecked-long [-1 0 1 Byte/MaxValue Int16/MaxValue Int32/MaxValue Int64/MaxValue Int64/MinValue Int64/MinValue]]
+   [unchecked-long [-1 0 1 Byte/MaxValue Int16/MaxValue Int32/MaxValue Int64/MaxValue #{Int64/MinValue Int64/MaxValue} #{Int64/MinValue Int64/MaxValue}]]
                                                                                              ;; 2.14748365E9 if when float/double conversion is avoided...
    [float [-1.0 0.0 1.0 255.0 32767.0 2.147483648E9 9.223372036854776E18 Single/MaxValue :error]]
    [unchecked-float [-1.0 0.0 1.0 255.0 32767.0 2.147483648E9 9.223372036854776E18 Single/MaxValue Single/PositiveInfinity]]
@@ -182,7 +186,7 @@
                       (try
                        (f x)
                        (catch ArgumentException e :error)))]           ;;; IllegalArgumentException
-        (is (= vals (map wrapped inputs)))))))
+        (is (= vals (map (fn [e a] (if (and (set? e) (some #(= % a) e)) e a)) vals (map wrapped inputs))))))))
 
 (deftest test-prim-with-matching-hint
   (is (= 1.0 (let [x 1.2] (Math/Round ^double x)))))                     ;;; 1 round
