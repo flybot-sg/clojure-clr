@@ -57,7 +57,6 @@ namespace Clojure.Tests.LibTests
                 EventWaitHandle.WaitAll(handles);
                 ((EventWaitHandle)x).Set();
             });
-            thr1.SetApartmentState(ApartmentState.MTA);
             thr1.Start(handle);
             
             Thread.Sleep(100);
