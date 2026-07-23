@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-* runners are ARM64 (float->int saturation); ubuntu/windows are
-        # x64 (the "integer indefinite" sentinel). Both paths are exercised here.
+        # test both ARM64 and x64 for the float->int saturation
+        # see `expected-casts` test in numbers.clj
         os: [ubuntu-latest, windows-latest, macos-latest]
     env:
       # Fresh runners have no stale MSBuild nodes, but disabling node reuse avoids
@@ -25,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup .NET SDK (pinned by global.json)
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
