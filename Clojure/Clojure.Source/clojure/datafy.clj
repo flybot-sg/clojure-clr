@@ -24,7 +24,7 @@
     (if (identical? v x)
       v
       (if (instance? clojure.lang.IObj v)
-        (vary-meta v assoc ::obj x ::class (-> x class .Name symbol))    ;;; .getName
+        (vary-meta v assoc ::obj x ::class (-> x class .FullName symbol))    ;;; .getName
         v))))
 
 (defn nav
@@ -59,4 +59,4 @@
   System.Type                                                                                            ;;; java.lang.Class
   (datafy [c]
           (let [{:keys [members] :as ret} ((requiring-resolve 'clojure.reflect/reflect) c)]
-            (assoc ret :name (-> c .Name symbol) :members (->> members (group-by :name) sortmap)))))     ;;; .getName
+            (assoc ret :name (-> c .FullName symbol) :members (->> members (group-by :name) sortmap)))))     ;;; .getName
