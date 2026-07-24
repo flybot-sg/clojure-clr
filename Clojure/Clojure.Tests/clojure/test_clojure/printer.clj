@@ -192,3 +192,7 @@
              "##Inf" Single/PositiveInfinity        ;;; Float/POSITIVE_INFINITY
              "##-Inf" Single/NegativeInfinity       ;;; Float/NEGATIVE_INFINITY
              "##NaN" Single/NaN))                   ;;; Float/NaN
+
+(deftest print-object-uses-fully-qualified-class-name
+  (is (re-find #"#object\[clojure\.lang\.Atom " (pr-str (atom 1))))
+  (is (re-find #"#object\[System\.Text\.StringBuilder " (pr-str (System.Text.StringBuilder.)))))
