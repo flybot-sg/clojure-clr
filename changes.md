@@ -168,6 +168,8 @@ This can be used e.g. to consume APIs that return paginated or batched data.
 
 * [CLJCLR-112](https://clojure.atlassian.net/browse/CLJCLR-112)
   Allow chars and ints to be keys together in a map (Breaking change: redefine Char to be non-numeric)
+* [#4](https://github.com/flybot-sg/clojure-clr/pull/4)
+  clojure.datafy and object printing use fully-qualified class names (`.FullName`, matching JVM `.getName`) instead of the short `.Name`
 
 # Changes to Clojure in Version 1.10.3
 
