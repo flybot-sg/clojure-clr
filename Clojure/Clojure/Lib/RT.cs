@@ -41,13 +41,24 @@ namespace clojure.lang
 
         static Dictionary<Symbol,Type> CreateDefaultImportDictionary()
         {
-            var q = GetAllTypesInNamespace("System");
-            var d = q.ToDictionary(keySelector: t => Symbol.intern(t.Name));
+            // Multiple loaded assemblies can define a public type with the same name in
+            // namespace System (e.g. mscorlib and ExCSS.Unity both define System.Tuple),
+            // so ToDictionary would throw on the duplicate key.  Prefer the type from the
+            // core library, else keep the first one seen, so the result does not depend on
+            // assembly enumeration order.
+            var core = typeof(object).Assembly;
+            var d = new Dictionary<Symbol, Type>();
+            foreach (var t in GetAllTypesInNamespace("System"))
+            {
+                var sym = Symbol.intern(t.Name);
+                if (!d.TryGetValue(sym, out Type existing) || (t.Assembly == core && existing.Assembly != core))
+                    d[sym] = t;
+            }
 
             // ADDED THESE TO SUPPORT THE BOOTSTRAPPING IN THE JAVA CORE.CLJ
-            d.Add(Symbol.intern("StringBuilder"), typeof(StringBuilder));
-            d.Add(Symbol.intern("BigInteger"), typeof(clojure.lang.BigInteger));
-            d.Add(Symbol.intern("BigDecimal"), typeof(clojure.lang.BigDecimal));
+            d[Symbol.intern("StringBuilder")] = typeof(StringBuilder);
+            d[Symbol.intern("BigInteger")] = typeof(clojure.lang.BigInteger);
+            d[Symbol.intern("BigDecimal")] = typeof(clojure.lang.BigDecimal);
 
             return d;
         }

@@ -158,6 +158,15 @@ This can be used e.g. to consume APIs that return paginated or batched data.
 * [CLJ-2620](https://clojure.atlassian.net/browse/CLJ-2620) clojure.server - Fix asymmetric handling of `:exception` `:val`s in `prepl`
 * [CLJ-2387](https://clojure.atlassian.net/browse/CLJ-2387) clojure.server - Fix off-by-one in socket server port validation
 
+# Changes to ClojureCLR in Version 1.11.1
+
+## Fixes
+
+* [#7](https://github.com/flybot-sg/clojure-clr/pull/7)
+  clojure.datafy, object printing, and defn arg type-hint inference use fully-qualified class names (`.FullName`, matching JVM `.getName`) instead of the short `.Name`
+* [#12](https://github.com/flybot-sg/clojure-clr/pull/12) Fix `RT` crash on duplicate `System` type names
+* [#3](https://github.com/flybot-sg/clojure-clr/pull/3) Fixed cross-platform build and tests
+
 # Changes to ClojureCLR in Version 1.11
 
 ## Update
@@ -168,8 +177,6 @@ This can be used e.g. to consume APIs that return paginated or batched data.
 
 * [CLJCLR-112](https://clojure.atlassian.net/browse/CLJCLR-112)
   Allow chars and ints to be keys together in a map (Breaking change: redefine Char to be non-numeric)
-* [#7](https://github.com/flybot-sg/clojure-clr/pull/7)
-  clojure.datafy, object printing, and defn arg type-hint inference use fully-qualified class names (`.FullName`, matching JVM `.getName`) instead of the short `.Name`
 
 # Changes to Clojure in Version 1.10.3
 
