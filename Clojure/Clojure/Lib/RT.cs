@@ -44,8 +44,8 @@ namespace clojure.lang
             // Multiple loaded assemblies can define a public type with the same name in
             // namespace System (e.g. mscorlib and ExCSS.Unity both define System.Tuple),
             // so ToDictionary would throw on the duplicate key.  Prefer the type from the
-            // core library, else keep the first one seen, so the result does not depend on
-            // assembly enumeration order.
+            // core library, else keep the first one seen, so core-library types resolve
+            // deterministically regardless of assembly enumeration order.
             var core = typeof(object).Assembly;
             var d = new Dictionary<Symbol, Type>();
             foreach (var t in GetAllTypesInNamespace("System"))
