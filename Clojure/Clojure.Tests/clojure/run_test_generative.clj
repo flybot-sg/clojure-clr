@@ -48,10 +48,10 @@
       (println "Specify at least one namespace with tests")
       (Environment/Exit -1))))   
 
-(def namespaces (remove (read-string (or (System.Environment/GetEnvironmentVariable "clojure.test-clojure.exclude-namespaces") "#{}"))
+(def namespaces (remove (read-string (or (System.Environment/GetEnvironmentVariable "CLOJURE_TEST_EXCLUDE_NAMESPACES") "#{}"))
                         (ns/find-namespaces-in-dir (System.IO.DirectoryInfo. "clojure/test_clojure"))))
 
 
-(println (read-string (or (System.Environment/GetEnvironmentVariable "clojure.test-clojure.exclude-namespaces") "#{}")))
+(println (read-string (or (System.Environment/GetEnvironmentVariable "CLOJURE_TEST_EXCLUDE_NAMESPACES") "#{}")))
 (println namespaces)
 (apply my-runner namespaces)

@@ -1,0 +1,50 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # test both ARM64 and x64 for the float->int saturation
+        # see `expected-casts` test in numbers.clj
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    env:
+      # Fresh runners have no stale MSBuild nodes, but disabling node reuse avoids
+      # any chance of the nested `dotnet run` test step deadlocking on a build node.
+      MSBUILDDISABLENODEREUSE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      # The net462 AOT step (Clojure.Compile) runs via Mono on Unix; stock
+      # Linux/macOS runners don't ship it. Windows runs the net462 exe natively.
+      # But we do not need the net462 AOT step for this CI run, since we use net6.0
+      # see https://github.com/flybot-sg/clojure-clr/issues/2 for details
+      - name: Install Mono (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update && sudo apt-get install -y mono-complete; fi
+          if [ "$RUNNER_OS" = "macOS" ]; then brew install mono; fi
+
+      - name: Build, stage, and run the Clojure test suite
+        working-directory: Clojure
+        run: dotnet msbuild build.proj /t:Test
+
+      - name: Run the C# runtime test suite (NUnit)
+        if: ${{ !cancelled() }}
+        working-directory: Clojure
+        run: dotnet test Csharp.Tests/Csharp.Tests.csproj -f net6.0
