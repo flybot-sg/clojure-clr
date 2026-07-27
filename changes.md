@@ -158,7 +158,7 @@ This can be used e.g. to consume APIs that return paginated or batched data.
 * [CLJ-2620](https://clojure.atlassian.net/browse/CLJ-2620) clojure.server - Fix asymmetric handling of `:exception` `:val`s in `prepl`
 * [CLJ-2387](https://clojure.atlassian.net/browse/CLJ-2387) clojure.server - Fix off-by-one in socket server port validation
 
-# Changes to ClojureCLR in Version 1.11.1
+# Changes to ClojureCLR in Version 1.11.0-flybot1
 
 ## Fixes
 
