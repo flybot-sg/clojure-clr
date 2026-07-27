@@ -360,6 +360,8 @@ namespace clojure.lang
         
         internal static volatile bool CHECK_SPECS = false;
 
+        public static string SystemRuntimeDirectory = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+
         static RT()
         {
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
@@ -494,6 +496,8 @@ namespace clojure.lang
                 Var refer = var("clojure.core", "refer");
                 in_ns.invoke(USER);
                 refer.invoke(CLOJURE);
+                MaybeLoadCljScript("user.cljr");
+                MaybeLoadCljScript("user.cljc");
                 MaybeLoadCljScript("user.clj");
 
                 // start socket servers
@@ -3228,7 +3232,9 @@ namespace clojure.lang
             if (!RuntimeBootstrapFlag.DisableFileLoad)
             {
                 FileInfo cljInfo = sourceExtensions.Map((ext) => FindFile(relativePath + ext)).Where(fi => !(fi is null)).FirstOrDefault();
-                FileInfo assyInfo = assemblyExtensions.Map((ext) => FindFile(relativePath + ext)).Where(fi => !(fi is null)).FirstOrDefault();
+
+                var dllRelativePath = relativePath.Replace('/', '.');
+                FileInfo assyInfo = assemblyExtensions.Map((ext) => FindFile(dllRelativePath + ext)).Where(fi => !(fi is null)).FirstOrDefault();
 
                 if ((assyInfo != null &&
                      (cljInfo == null || assyInfo.LastWriteTime >= cljInfo.LastWriteTime)))
@@ -3249,10 +3255,13 @@ namespace clojure.lang
 
                 if (cljInfo != null)
                 {
+                    // Need to know the actual extension
+                    string ext = cljInfo.Name.Substring(cljInfo.Name.LastIndexOf('.'));
+                    string sourceName = relativePath + ext;
                     if (booleanCast(Compiler.CompileFilesVar.deref()))
-                        Compile(cljInfo, cljInfo.Name);
+                        Compile(cljInfo, sourceName);
                     else
-                        LoadScript(cljInfo, cljInfo.Name);
+                        LoadScript(cljInfo, sourceName);
                     return;
                 }
             }
@@ -3271,11 +3280,13 @@ namespace clojure.lang
             }
 
 
-            bool loaded = TryLoadFromEmbeddedResource(relativePath, relativePath + ".clj.dll");
+            bool loaded = TryLoadFromEmbeddedResource(relativePath, relativePath + ".cljr.dll")
+                || TryLoadFromEmbeddedResource(relativePath, relativePath + ".cljc.dll")
+                || TryLoadFromEmbeddedResource(relativePath, relativePath + ".clj.dll");
 
 
             if (!loaded && failIfNotFound)
-                throw new FileNotFoundException(String.Format("Could not locate {0} with extensions .cljr, .cljc, .cljr, .cljr.dll, .cljc.dll, or .clj.dll on load path.{2}",
+                throw new FileNotFoundException(String.Format("Could not locate {0} with extensions .cljr, .cljc, .clj, .cljr.dll, .cljc.dll, or .clj.dll on load path.{1}",
                         relativePath,
                         relativePath.Contains("_") ? " Please check that namespaces with dashes use underscores in the Clojure file name." : ""));
         }
@@ -3299,11 +3310,16 @@ namespace clojure.lang
                 }
             }
 
-            var embeddedCljName = relativePath.Replace("/", ".") + ".clj";
+            var embeddedCljName = relativePath.Replace("/", ".") + ".cljr";
             var stream = GetEmbeddedResourceStream(embeddedCljName, out Assembly containingAssembly);
             if ( stream == null )
             {
                 embeddedCljName = relativePath.Replace("/", ".") + ".cljc";
+                stream = GetEmbeddedResourceStream(embeddedCljName, out containingAssembly);
+            }
+            if (stream == null)
+            {
+                embeddedCljName = relativePath.Replace("/", ".") + ".clj";
                 stream = GetEmbeddedResourceStream(embeddedCljName, out containingAssembly);
             }
             if (stream != null)
