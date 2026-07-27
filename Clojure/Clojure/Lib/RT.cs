@@ -3280,9 +3280,11 @@ namespace clojure.lang
             }
 
 
-            bool loaded = TryLoadFromEmbeddedResource(relativePath, relativePath + ".cljr.dll")
-                || TryLoadFromEmbeddedResource(relativePath, relativePath + ".cljc.dll")
-                || TryLoadFromEmbeddedResource(relativePath, relativePath + ".clj.dll");
+            // Embedded assembly resource names are dot-separated; upstream still probes with the slash-form relativePath here (upstream bug).
+            var embeddedDllBaseName = relativePath.Replace('/', '.');
+            bool loaded = TryLoadFromEmbeddedResource(relativePath, embeddedDllBaseName + ".cljr.dll")
+                || TryLoadFromEmbeddedResource(relativePath, embeddedDllBaseName + ".cljc.dll")
+                || TryLoadFromEmbeddedResource(relativePath, embeddedDllBaseName + ".clj.dll");
 
 
             if (!loaded && failIfNotFound)
