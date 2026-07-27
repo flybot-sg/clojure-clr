@@ -165,6 +165,7 @@ This can be used e.g. to consume APIs that return paginated or batched data.
 * [#7](https://github.com/flybot-sg/clojure-clr/pull/7)
   clojure.datafy, object printing, and defn arg type-hint inference use fully-qualified class names (`.FullName`, matching JVM `.getName`) instead of the short `.Name`
 * [#12](https://github.com/flybot-sg/clojure-clr/pull/12) Fix `RT` crash on duplicate `System` type names
+* [#12](https://github.com/flybot-sg/clojure-clr/pull/12) Skip assemblies whose types cannot be loaded
 * [#3](https://github.com/flybot-sg/clojure-clr/pull/3) Fixed cross-platform build and tests
 
 # Changes to ClojureCLR in Version 1.11

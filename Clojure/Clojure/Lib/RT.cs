@@ -63,10 +63,20 @@ namespace clojure.lang
             return d;
         }
 
+        // Assembly.GetTypes() throws if any type in the assembly cannot be loaded
+        // (an unresolvable dependency is enough), which would abort the whole scan.
+        // Keep the types that did load and skip the rest.
+        static IEnumerable<Type> GetTypesSafely(Assembly a)
+        {
+            try { return a.GetTypes(); }
+            catch (ReflectionTypeLoadException e) { return e.Types.Where(t => t != null); }
+            catch (Exception) { return Type.EmptyTypes; }
+        }
+
         static IEnumerable<Type> GetAllTypesInNamespace(string nspace)
         {
             var q = AppDomain.CurrentDomain.GetAssemblies()
-                       .SelectMany(t => t.GetTypes())
+                       .SelectMany(t => GetTypesSafely(t))
                        .Where(t => (t.IsClass || t.IsInterface || t.IsValueType) &&
                                     t.Namespace == nspace &&
                                     t.IsPublic &&
