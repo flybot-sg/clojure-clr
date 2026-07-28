@@ -1,0 +1,111 @@
+name: Release
+
+# Publishes a net462 ILMerged ClojureCLR build.
+
+on:
+  push:
+    tags:
+      - "clojure-*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CONFIG: Release
+  MSBUILDDISABLENODEREUSE: "1"
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  ILMERGE_VERSION: "3.0.41"
+
+jobs:
+  release:
+    name: Build & publish net462 release
+    runs-on: windows-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Verify version & resolve tag
+        id: ver
+        shell: bash
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          bash .github/scripts/check-version.sh --tag "$REF_NAME" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Provision ILMerge
+        shell: pwsh
+        # build.proj hardcodes a bare `ilmerge` in <Exec>, so add to PATH.
+        run: |
+          $ErrorActionPreference = 'Stop'
+          nuget install ILMerge -Version $env:ILMERGE_VERSION -OutputDirectory "$env:RUNNER_TEMP\packages" -ExcludeVersion -NonInteractive -Verbosity quiet
+          if ($LASTEXITCODE -ne 0) { throw "nuget install ILMerge failed ($LASTEXITCODE)" }
+          $tools = "$env:RUNNER_TEMP\packages\ILMerge\tools\net452"
+          if (-not (Test-Path (Join-Path $tools 'ILMerge.exe'))) { throw "ILMerge.exe not found under $tools" }
+          $tools | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+      - name: Build, test, pack & ILMerge (net462)
+        working-directory: Clojure
+        # Targets run in the order listed. Builds, then tests, then ILMerge462
+        # splices the merged Clojure.dll into the PackAll nupkg.
+        #
+        # Test: tests.yml doesn't cover net462, even though net462 adds the
+        # AOT-compiled stdlib and runs the additional genclass/attributes/
+        # compilation namespaces. Run it against Release, like the artifacts.
+        run: dotnet msbuild build.proj /t:"Test;PackAll;ILMerge462" /p:TestTargetFramework=net462 /p:Configuration=$env:CONFIG
+
+      - name: Stage release assets
+        shell: pwsh
+        env:
+          FULL: ${{ steps.ver.outputs.full }}
+        # Extract from the .nupkg, not bin/ - ILMerge462 writes the merged
+        # Clojure.dll to Stage/ilmerge and splices it into the package, never
+        # back to bin/.
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $nupkg = "Clojure\Stage\Clojure.$env:FULL.nupkg"
+          if (-not (Test-Path $nupkg)) { throw "expected artifact missing: $nupkg" }
+
+          $pkgDir = Join-Path $env:RUNNER_TEMP 'nupkg'
+          Remove-Item $pkgDir -Recurse -Force -ErrorAction Ignore
+          [IO.Compression.ZipFile]::ExtractToDirectory((Resolve-Path $nupkg).Path, $pkgDir)
+
+          $dst = 'release-assets'
+          New-Item -ItemType Directory -Force $dst | Out-Null
+          $lib = Join-Path $pkgDir 'lib\net462'
+
+          # The splice is a <Copy SkipUnchangedFiles="true">. If it no-ops,
+          # lib/net462 keeps the unmerged assembly, so check for that.
+          $merged = (Get-FileHash 'Clojure\Stage\ilmerge\Clojure.dll' -Algorithm SHA256).Hash
+          $inPkg  = (Get-FileHash (Join-Path $lib 'Clojure.dll') -Algorithm SHA256).Hash
+          Write-Host "  ilmerge/Clojure.dll     $merged"
+          Write-Host "  lib/net462/Clojure.dll  $inPkg"
+          if ($merged -ne $inPkg) { throw 'lib/net462/Clojure.dll is not the ILMerged assembly' }
+
+          Copy-Item (Join-Path $lib 'Clojure.dll')        $dst -Force
+          Copy-Item (Join-Path $lib 'Clojure.Source.dll') $dst -Force
+          Copy-Item $nupkg $dst -Force
+          Get-ChildItem $dst | Select-Object Name, Length | Format-Table -AutoSize
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ClojureCLR ${{ steps.ver.outputs.full }} (net462)
+          prerelease: ${{ steps.ver.outputs.suffix != '' }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: release-assets/*
