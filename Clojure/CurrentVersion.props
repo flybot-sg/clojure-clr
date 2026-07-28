@@ -4,6 +4,6 @@
     <MajorVersion>1</MajorVersion>
     <MinorVersion>11</MinorVersion>
     <PatchVersion>0</PatchVersion>
-    <VersionSuffix></VersionSuffix>
+    <VersionSuffix>flybotrc1</VersionSuffix>
   </PropertyGroup>
 </Project>

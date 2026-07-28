@@ -2,6 +2,19 @@
 
 # Preparing for a new release
 
+Two paths are documented here.  The automated path builds, tests, and publishes the net462 artifacts.  The manual path further down is still needed for the zips, the NuGet push, and SourceForge.
+
+## Automated net462 release
+
+`.github/workflows/release.yml` triggers on any pushed tag matching `clojure-*`.  It runs on `windows-latest` and:
+
+* Cross-checks the two version files against each other and against the tag
+* Runs the net462 test suite in `Release` -- `tests.yml` does not cover net462, so this is the only CI that exercises the AOT-compiled standard library and the `genclass`/`attributes`/`compilation` test namespaces.
+* Runs `PackAll` and `ILMerge462`, then verifies that the `Clojure.dll` inside `lib/net462` of the nupkg is the ILMerged assembly.
+* Publishes a GitHub Release attaching `Clojure.dll`, `Clojure.Source.dll`, and the nupkg.
+
+To use it: do **Preparation** step 1 below, commit, then tag and push. This publishes net462 only.  The other frameworks' zips and the NuGet push are still manual -- see below.
+
 ## Preparation
 
 * Modify `Clojure\Clojure\Bootstrap\version.properties` to desired release version.
@@ -38,7 +51,7 @@ In git:
 
 * Commit the changed version  (Prepare release ...)
 * Tag this commit.
-* Push the change and the tag to the github repo.
+* Push the change and the tag to the github repo.  Pushing the tag starts the automated net462 release described above.
 
 ## Nuget distribution
 
