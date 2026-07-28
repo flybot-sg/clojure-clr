@@ -1,15 +1,12 @@
 This file tracks changes made in the Flybot fork of ClojureCLR. Changes
-inherited from upstream ClojureCLR are recorded in [changes.md](changes.md),
-which this fork does not modify.
+inherited from upstream ClojureCLR are recorded in [changes.md](changes.md).
 
-One top-level heading per fork release, newest first.
-
-# Changes to ClojureCLR in Version 1.11.0-flybotrc1
+# Changes to ClojureCLR in Version 1.11.0-flybot1
 
 ## Fixes
 
-Code originating in this fork. Where a fix sits alongside backported code, only
-the original part is described here; its upstream half is under Backports.
+Code originating in this fork. When a fix involves modifications to backported code, only
+the modification is described here; the backported code is still under Backports.
 
 * [#7](https://github.com/flybot-sg/clojure-clr/pull/7) `clojure.datafy/datafy`
   and `#object[...]` printing use fully-qualified class names (`.FullName`,
@@ -35,7 +32,7 @@ the original part is described here; its upstream half is under Backports.
 
 ## Backports
 
-Code taken from the ClojureCLR 1.12 line. Each entry links the upstream commit
+Code taken from ClojureCLR after 1.11.0. Each entry links the upstream commit
 it came from. *(partial)* means only some hunks of that commit were taken.
 
 ### defn type-hint tags ([#7](https://github.com/flybot-sg/clojure-clr/pull/7))

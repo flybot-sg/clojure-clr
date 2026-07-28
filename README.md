@@ -1,4 +1,4 @@
-# ClojureCLR — Flybot fork
+# Flybot fork of ClojureCLR
 
 A fork of [ClojureCLR](https://github.com/clojure/clojure-clr) maintained by
 Flybot to backport fixes from ClojureCLR 1.12 onto the 1.11.0 line. See
