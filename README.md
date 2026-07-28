@@ -16,16 +16,23 @@ See [CHANGES_FLYBOT.md](CHANGES_FLYBOT.md). Upstream's own changelog,
 
 ## Releases
 
-Publishing is a work in progress.
-The current releases are `ILMerge`-d DLLs that can be used in Unity.
+The release flow is a work in progress. Currently, three files are released:
 
-- `Clojure.dll` — the ILMerged assembly
-- `Clojure.Source.dll`
-- `Clojure.<version>.nupkg`
+- `Clojure.dll`: the net462 `ILMerge`-d assembly. The runtime, compiler
+  and 39 standard-library namespaces are AOT-compiled into this. Use this in
+  Unity.
+- `Clojure.Source.dll`: the standard library as embedded `.clj` resources,
+  used by `Clojure.Compile` to produce the AOT assemblies merged into
+  `Clojure.dll` above.
+- `Clojure.<version>.nupkg`: the NuGet package.
+
+Note that `clojure.spec.alpha` and `clojure.core.specs.alpha` should also be
+present at runtime, as `clojure.core` loads specs at startup. They are
+not merged here into `Clojure.dll`, but are NuGet dependencies.
 
 ## Building from source
 
-The build is unchanged from upstream — follow the
+For the build process, see the
 [ClojureCLR wiki](https://github.com/clojure/clojure-clr/wiki).
 
 ## License
