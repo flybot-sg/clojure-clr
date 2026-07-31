@@ -103,6 +103,17 @@ Backported so that dmiller's `cljr` CLI can run against a 1.11 `Clojure.Main`
   the assembly scan in `GetAllTypesInNamespace` so one unloadable assembly
   cannot abort it; the exception handling is narrower, see Fixes
 
+### Runtime initialization paths ([#16](https://github.com/flybot-sg/clojure-clr/pull/16))
+
+* [CLJCLR-130](https://clojure.atlassian.net/browse/CLJCLR-130)
+  ([38d3edac](https://github.com/clojure/clojure-clr/commit/38d3edac))
+  Resolve the spec DLLs against the executing assembly's directory, not
+  `AppDomain.CurrentDomain.BaseDirectory`
+* [CLJCLR-198](https://clojure.atlassian.net/browse/CLJCLR-198)
+  ([f48cd06f](https://github.com/clojure/clojure-clr/commit/f48cd06f)) Same for
+  `Clojure.Source.dll` in the `RT` static constructor; also catch
+  `ArgumentException`, and fall back to version `0.0.0`
+
 ### Known gaps
 
 * [59a7fc15](https://github.com/clojure/clojure-clr/commit/59a7fc15) also
