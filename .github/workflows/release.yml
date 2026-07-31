@@ -25,7 +25,7 @@ jobs:
   release:
     name: Build & publish net462 release
     runs-on: windows-latest
-    timeout-minutes: 90
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:
@@ -98,6 +98,16 @@ jobs:
           Copy-Item (Join-Path $lib 'Clojure.dll')        $dst -Force
           Copy-Item (Join-Path $lib 'Clojure.Source.dll') $dst -Force
           Copy-Item $nupkg $dst -Force
+
+          $deps = "Clojure\Clojure\bin\$env:CONFIG\net462"
+          foreach ($d in 'clojure.spec.alpha.dll', 'clojure.core.specs.alpha.dll',
+                         'Microsoft.Dynamic.dll', 'Microsoft.Scripting.dll',
+                         'Microsoft.Scripting.Metadata.dll') {
+            $src = Join-Path $deps $d
+            if (-not (Test-Path $src)) { throw "missing runtime dependency: $src" }
+            Copy-Item $src $dst -Force
+          }
+
           Get-ChildItem $dst | Select-Object Name, Length | Format-Table -AutoSize
 
       - name: Publish GitHub Release

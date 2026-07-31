@@ -16,7 +16,9 @@ See [CHANGES_FLYBOT.md](CHANGES_FLYBOT.md). Upstream's own changelog,
 
 ## Releases
 
-The release flow is a work in progress. Currently, three files are released:
+The release flow is a work in progress; see
+[docs/Preparing-a-release.md](docs/Preparing-a-release.md) for creating one locally.
+Currently, these files are released:
 
 - `Clojure.dll`: the net462 `ILMerge`-d assembly. The runtime, compiler
   and 39 standard-library namespaces are AOT-compiled into this. Use this in
@@ -24,11 +26,13 @@ The release flow is a work in progress. Currently, three files are released:
 - `Clojure.Source.dll`: the standard library as embedded `.clj` resources,
   used by `Clojure.Compile` to produce the AOT assemblies merged into
   `Clojure.dll` above.
-- `Clojure.<version>.nupkg`: the NuGet package.
-
-Note that `clojure.spec.alpha` and `clojure.core.specs.alpha` should also be
-present at runtime, as `clojure.core` loads specs at startup. They are
-not merged here into `Clojure.dll`, but are NuGet dependencies.
+- `clojure.spec.alpha.dll`, `clojure.core.specs.alpha.dll`,
+  `Microsoft.Dynamic.dll`, `Microsoft.Scripting.dll` and
+  `Microsoft.Scripting.Metadata.dll`: NuGet dependencies, not merged into
+  `Clojure.dll`. Place the DLLs side-by-side: `clojure.core` loads specs at startup,
+  and the DLR assemblies back CLR interop.
+- `Clojure.<version>.nupkg`: the NuGet package, which resolves those
+  dependencies itself.
 
 ## Building from source
 
