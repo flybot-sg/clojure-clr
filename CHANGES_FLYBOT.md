@@ -110,9 +110,10 @@ Backported so that dmiller's `cljr` CLI can run against a 1.11 `Clojure.Main`
   Resolve the spec DLLs against the executing assembly's directory, not
   `AppDomain.CurrentDomain.BaseDirectory`
 * [CLJCLR-198](https://clojure.atlassian.net/browse/CLJCLR-198)
-  ([f48cd06f](https://github.com/clojure/clojure-clr/commit/f48cd06f)) Same for
-  `Clojure.Source.dll` in the `RT` static constructor; also catch
-  `ArgumentException`, and fall back to version `0.0.0`
+  ([f48cd06f](https://github.com/clojure/clojure-clr/commit/f48cd06f) and
+  [45fae54](https://github.com/clojure/clojure-clr/commit/45fae54))
+  Resolve `Clojure.Source.dll` similarly in the `RT` static constructor; also
+  catch `ArgumentException`
 
 ### Known gaps
 
