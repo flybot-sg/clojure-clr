@@ -1,12 +1,33 @@
 This file tracks changes made in the Flybot fork of ClojureCLR. Changes
 inherited from upstream ClojureCLR are recorded in [changes.md](changes.md).
 
+**Fixes** are code originating in this fork. When a fix involves modifications to
+backported code, only the modification is described there; the backported code is
+still under Backports.
+
+**Backports** are code taken from ClojureCLR after 1.11.0. Each entry links the
+upstream commit it came from. *(partial)* means only some hunks of that commit
+were taken.
+
+# Changes to ClojureCLR in Version 1.11.0-flybot2
+
+## Backports
+
+### Runtime initialization paths ([#16](https://github.com/flybot-sg/clojure-clr/pull/16))
+
+* [CLJCLR-130](https://clojure.atlassian.net/browse/CLJCLR-130)
+  ([38d3edac](https://github.com/clojure/clojure-clr/commit/38d3edac))
+  Resolve the spec DLLs against the executing assembly's directory, not
+  `AppDomain.CurrentDomain.BaseDirectory`
+* [CLJCLR-198](https://clojure.atlassian.net/browse/CLJCLR-198)
+  ([f48cd06f](https://github.com/clojure/clojure-clr/commit/f48cd06f) and
+  [45fae54](https://github.com/clojure/clojure-clr/commit/45fae54))
+  Resolve `Clojure.Source.dll` similarly in the `RT` static constructor; also
+  catch `ArgumentException`
+
 # Changes to ClojureCLR in Version 1.11.0-flybot1
 
 ## Fixes
-
-Code originating in this fork. When a fix involves modifications to backported code, only
-the modification is described here; the backported code is still under Backports.
 
 * [#7](https://github.com/flybot-sg/clojure-clr/pull/7) `clojure.datafy/datafy`
   and `#object[...]` printing use fully-qualified class names (`.FullName`,
@@ -31,9 +52,6 @@ the modification is described here; the backported code is still under Backports
   `ReflectionTypeLoadException` keeps the types that did load
 
 ## Backports
-
-Code taken from ClojureCLR after 1.11.0. Each entry links the upstream commit
-it came from. *(partial)* means only some hunks of that commit were taken.
 
 ### defn type-hint tags ([#7](https://github.com/flybot-sg/clojure-clr/pull/7))
 
@@ -103,19 +121,7 @@ Backported so that dmiller's `cljr` CLI can run against a 1.11 `Clojure.Main`
   the assembly scan in `GetAllTypesInNamespace` so one unloadable assembly
   cannot abort it; the exception handling is narrower, see Fixes
 
-### Runtime initialization paths ([#16](https://github.com/flybot-sg/clojure-clr/pull/16))
-
-* [CLJCLR-130](https://clojure.atlassian.net/browse/CLJCLR-130)
-  ([38d3edac](https://github.com/clojure/clojure-clr/commit/38d3edac))
-  Resolve the spec DLLs against the executing assembly's directory, not
-  `AppDomain.CurrentDomain.BaseDirectory`
-* [CLJCLR-198](https://clojure.atlassian.net/browse/CLJCLR-198)
-  ([f48cd06f](https://github.com/clojure/clojure-clr/commit/f48cd06f) and
-  [45fae54](https://github.com/clojure/clojure-clr/commit/45fae54))
-  Resolve `Clojure.Source.dll` similarly in the `RT` static constructor; also
-  catch `ArgumentException`
-
-### Known gaps
+# Known gaps
 
 * [59a7fc15](https://github.com/clojure/clojure-clr/commit/59a7fc15) also
   replaces `Path/Join` with `Path/Combine` in `clojure/main.clj`. That hunk was
