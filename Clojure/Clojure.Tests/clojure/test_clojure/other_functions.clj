@@ -399,3 +399,29 @@
       {1 1 3 3}     (update-keys (hash-map 0 1 2 3) inc)
       {1 1 3 3}     (update-keys (array-map 0 1 2 3) inc)
       {1 1 3 3}     (update-keys (sorted-map 2 3 0 1) inc))))
+
+(deftest test-compare-is-ordinal
+  ; strings, symbols, and keywords compare by UTF-16 code unit, as on the JVM,
+  ; not by the machine's collation culture. "\u00e9" is one such code unit,
+  ; above every ASCII letter
+  (are [result expr] (= result expr)
+    ["A" "B" "a" "b"]   (sort ["a" "B" "b" "A"])
+    ["e" "f" "\u00e9"]   (sort ["e" "\u00e9" "f"])
+    '[A B a b]          (sort '[a B b A])
+    '[X/a x/B x/a]      (sort '[x/a X/a x/B])
+    [:A :B :a :b]       (sort [:a :B :b :A])
+    ["A" "B" "a" "b"]   (seq (sorted-set "a" "B" "b" "A")))
+  (are [expr] (pos? expr)
+    (compare "a" "B")
+    (compare 'a 'B)
+    (compare :a :B)
+    (compare 'x/a 'x/B)
+    (compare 'a/a 'a))
+  ; two equal strings that are not the same object take the comparison path
+  ; rather than the identity check
+  (is (zero? (compare "ab" (str "a" "b"))))
+  ; a symbol without a namespace sorts before one that has it
+  (is (neg? (compare 'a 'a/a)))
+  ; other IComparable types still reach the fall-through
+  (is (neg? (compare false true)))
+  (is (pos? (compare \b \a))))
