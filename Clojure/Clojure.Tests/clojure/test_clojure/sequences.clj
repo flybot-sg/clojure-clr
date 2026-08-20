@@ -1369,6 +1369,38 @@
   (is (= {:a true} (meta (sort (with-meta (range 10) {:a true})))))
   (is (= {:a true} (meta (sort-by :a (with-meta (seq [{:a 5} {:a 2} {:a 3}]) {:a true}))))))
 
+; a fn is an IComparer, a MultiFn is not, so a comparator of each kind
+; reaches sort through a different conversion path
+(defmulti boolean-comparator-multi (fn [_ _] :default))
+(defmethod boolean-comparator-multi :default [a b] (> a b))
+
+(defmulti int-comparator-multi (fn [_ _] :default))
+(defmethod int-comparator-multi :default [a b] (compare b a))
+
+(deftest test-sort-comparators
+  (are [x y] (= x y)
+      ; a two-arg predicate is a valid comparator: true means less-than
+      (sort > [1 3 2 4]) '(4 3 2 1)
+      (map :k (sort-by :k > [{:k 1} {:k 3} {:k 2}])) '(3 2 1)
+      (sort boolean-comparator-multi [1 3 2 4]) '(4 3 2 1)
+
+      ; an int-returning comparator keeps working
+      (sort (fn [a b] (compare b a)) [1 3 2 4]) '(4 3 2 1)
+      (sort int-comparator-multi [1 3 2 4]) '(4 3 2 1)))
+
+(deftest test-sort-is-stable
+  ; 17 is the smallest input on which an unstable sort reorders equal elements
+  (let [xs (map (fn [i] {:i i :k 1}) (range 17))]
+    (are [x y] (= x y)
+        (map :i (sort-by :k xs)) (range 17)
+        (map :i (sort-by :k < xs)) (range 17))))
+
+(deftest test-sort-modifies-array-argument
+  ; per the docstring, sorting an array sorts that array
+  (let [a (to-array [3 1 2])]
+    (sort a)
+    (is (= [1 2 3] (vec a)))))
+
 (deftest test-seqs-implements-iobj
   (doseq [coll [[1 2 3]
                 (vector-of :long 1 2 3)

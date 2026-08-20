@@ -3168,7 +3168,7 @@ namespace clojure.lang
         // The Java version goes through Array.sort to do this,
         // but I don't have a way to pass a comparator.
 
-        class ComparerConverter : IComparer
+        class ComparerConverter : IComparer, IComparer<object>
         {
             readonly IFn _fn;
 
@@ -3181,7 +3181,18 @@ namespace clojure.lang
 
             public int  Compare(object x, object y)
             {
- 	            return Util.ConvertToInt(_fn.invoke( x,y ));
+                if (_fn is IComparer comparer)
+                    return comparer.Compare(x, y);
+
+                // Same contract as AFunction.Compare: a bool result means less-than.
+                object o = _fn.invoke(x, y);
+                if (o is Boolean)
+                {
+                    if (RT.booleanCast(o))
+                        return -1;
+                    return RT.booleanCast(_fn.invoke(y, x)) ? 1 : 0;
+                }
+                return Util.ConvertToInt(o);
             }
 
             #endregion
@@ -3189,7 +3200,9 @@ namespace clojure.lang
 
         public static void SortArray(Array a, IFn fn)
         {
-                Array.Sort(a, new ComparerConverter(fn));
+                // Enumerable.OrderBy is a stable sort, Array.Sort is not.
+                object[] sorted = a.Cast<object>().OrderBy(x => x, new ComparerConverter(fn)).ToArray();
+                Array.Copy(sorted, a, sorted.Length);
         }
 
 
