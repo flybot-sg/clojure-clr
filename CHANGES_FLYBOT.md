@@ -9,6 +9,21 @@ still under Backports.
 upstream commit it came from. *(partial)* means only some hunks of that commit
 were taken.
 
+# Changes to ClojureCLR in Version 1.11.0-flybot3
+
+## Fixes
+
+* [#25](https://github.com/flybot-sg/clojure-clr/issues/25) `ComparerConverter`
+  calls the comparator's own `IComparer` when it has one, and otherwise reads a
+  `Boolean` result as less-than, the contract `AFunction.Compare` documents, so
+  `(sort > xs)` and `(sort-by f > xs)` sort descending instead of returning an
+  arbitrary order
+* [#24](https://github.com/flybot-sg/clojure-clr/issues/24) `RT.SortArray` sorts
+  through `Enumerable.OrderBy`, a stable sort, instead of `Array.Sort`, so `sort`
+  and `sort-by` keep equal elements in input order as their docstrings promise.
+  It copies the ordered elements back into the array it was handed, so sorting an
+  array still sorts that array
+
 # Changes to ClojureCLR in Version 1.11.0-flybot2
 
 ## Backports
