@@ -13,17 +13,17 @@ were taken.
 
 ## Fixes
 
-* [#25](https://github.com/flybot-sg/clojure-clr/issues/25) `ComparerConverter`
+* [#26](https://github.com/flybot-sg/clojure-clr/pull/26) `ComparerConverter`
   calls the comparator's own `IComparer` when it has one, and otherwise reads a
   `Boolean` result as less-than, the contract `AFunction.Compare` documents, so
   `(sort > xs)` and `(sort-by f > xs)` sort descending instead of returning an
   arbitrary order
-* [#24](https://github.com/flybot-sg/clojure-clr/issues/24) `RT.SortArray` sorts
+* [#26](https://github.com/flybot-sg/clojure-clr/pull/26) `RT.SortArray` sorts
   through `Enumerable.OrderBy`, a stable sort, instead of `Array.Sort`, so `sort`
   and `sort-by` keep equal elements in input order as their docstrings promise.
   It copies the ordered elements back into the array it was handed, so sorting an
   array still sorts that array
-* [#23](https://github.com/flybot-sg/clojure-clr/issues/23) `Util.compare` and
+* [#27](https://github.com/flybot-sg/clojure-clr/pull/27) `Util.compare` and
   `Symbol.CompareTo` compare strings with `String.CompareOrdinal` instead of the
   culture-sensitive `String.CompareTo`, so strings, symbols, and keywords order
   by UTF-16 code unit like JVM Clojure rather than by the machine's collation
