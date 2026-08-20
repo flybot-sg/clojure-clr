@@ -23,6 +23,11 @@ were taken.
   and `sort-by` keep equal elements in input order as their docstrings promise.
   It copies the ordered elements back into the array it was handed, so sorting an
   array still sorts that array
+* [#23](https://github.com/flybot-sg/clojure-clr/issues/23) `Util.compare` and
+  `Symbol.CompareTo` compare strings with `String.CompareOrdinal` instead of the
+  culture-sensitive `String.CompareTo`, so strings, symbols, and keywords order
+  by UTF-16 code unit like JVM Clojure rather than by the machine's collation
+  library; keywords compare through their symbol
 
 # Changes to ClojureCLR in Version 1.11.0-flybot2
 
