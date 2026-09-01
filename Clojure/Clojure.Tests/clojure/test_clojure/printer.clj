@@ -193,6 +193,20 @@
              "##-Inf" Single/NegativeInfinity       ;;; Float/NEGATIVE_INFINITY
              "##NaN" Single/NaN))                   ;;; Float/NaN
 
+(deftest print-double-round-trips
+  ;; value equality, not string: "R" spends an extra digit on Mono and .NET
+  ;; Framework, so the printed string differs by platform but reads back equal
+  (are [v] (= v (read-string (pr-str v)))
+       (/ 1.0 3.0))
+  (are [v] (= v (System.Single/Parse (pr-str v) System.Globalization.CultureInfo/InvariantCulture))
+       (float (/ 1.0 3.0)))
+  ;; a round trip cannot catch inflated digits (they read back equal), so short
+  ;; and exactly representable values check the string; 2^50 also covers the
+  ;; ".0" append and the 15-digit default losing it to E notation
+  (are [s v] (= s (pr-str v))
+       "0.1" 0.1
+       "1125899906842624.0" (Math/Pow 2 50)))
+
 (deftest print-object-uses-fully-qualified-class-name
   (is (re-find #"#object\[clojure\.lang\.Atom " (pr-str (atom 1))))
   (is (re-find #"#object\[System\.Text\.StringBuilder " (pr-str (System.Text.StringBuilder.)))))
