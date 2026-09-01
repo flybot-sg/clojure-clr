@@ -188,6 +188,15 @@
                        (catch ArgumentException e :error)))]           ;;; IllegalArgumentException
         (is (= vals (map (fn [e a] (if (and (set? e) (some #(= % a) e)) e a)) vals (map wrapped inputs))))))))
 
+(deftest test-boxed-ulong-cast
+  ; identity boxes the UInt64, and a box unboxes only as its exact type,
+  ; so the cast must convert the matched ulong rather than unbox the box
+  (are [x y] (= x y)
+      (long (identity (ulong 1))) 1
+      (int (identity (ulong 1))) 1
+      (long (identity (ulong Int64/MaxValue))) Int64/MaxValue)
+  (is (thrown? ArgumentException (long (identity (ulong UInt64/MaxValue))))))    ;;; IllegalArgumentException
+
 (deftest test-prim-with-matching-hint
   (is (= 1.0 (let [x 1.2] (Math/Round ^double x)))))                     ;;; 1 round
 
