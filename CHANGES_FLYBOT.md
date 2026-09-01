@@ -9,6 +9,16 @@ still under Backports.
 upstream commit it came from. *(partial)* means only some hunks of that commit
 were taken.
 
+# Changes to ClojureCLR in Version 1.11.0-flybot4 (unreleased)
+
+## Fixes
+
+* [#32](https://github.com/flybot-sg/clojure-clr/pull/32) `file-mode` opens a
+  plain write with `FileMode/Create` and `:append` with `FileMode/Append`
+  instead of `FileMode/OpenOrCreate` for every write, so `spit` and `writer`
+  truncate the file they overwrite and `:append` appends, like JVM Clojure,
+  instead of writing at position 0 and dropping the option
+
 # Changes to ClojureCLR in Version 1.11.0-flybot3
 
 ## Fixes
