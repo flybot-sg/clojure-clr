@@ -128,12 +128,25 @@ jobs:
           Write-Host "Clojure.Main reports $v"
           if ($v -ne $env:FULL) { throw "runtime reports $v, expected $env:FULL" }
 
+      - name: Extract release notes from CHANGES_FLYBOT.md
+        id: notes
+        shell: bash
+        env:
+          FULL: ${{ steps.ver.outputs.full }}
+        # Exact heading match, so a leftover "(unreleased)" marker fails the
+        # release instead of publishing an empty body.
+        run: |
+          set -euo pipefail
+          notes=$(awk -v v="$FULL" '$0 == "# Changes to ClojureCLR in Version " v {flag=1; next} /^# /{flag=0} flag' CHANGES_FLYBOT.md)
+          [ -n "$notes" ] || { printf '::error::no CHANGES_FLYBOT.md section for %s\n' "$FULL" >&2; exit 1; }
+          { echo 'NOTES<<EOF'; echo "$notes"; echo 'EOF'; } >> "$GITHUB_OUTPUT"
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ github.ref_name }}
           name: ClojureCLR ${{ steps.ver.outputs.full }} (net462)
           prerelease: ${{ steps.ver.outputs.suffix != '' }}
-          generate_release_notes: true
+          body: ${{ steps.notes.outputs.NOTES }}
           fail_on_unmatched_files: true
           files: release-assets/*
