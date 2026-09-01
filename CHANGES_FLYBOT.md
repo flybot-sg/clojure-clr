@@ -18,6 +18,10 @@ were taken.
   instead of `FileMode/OpenOrCreate` for every write, so `spit` and `writer`
   truncate the file they overwrite and `:append` appends, like JVM Clojure,
   instead of writing at position 0 and dropping the option
+* [#33](https://github.com/flybot-sg/clojure-clr/pull/33) `RT.longCast(object)`
+  converts the matched `ulong` local instead of unboxing the `UInt64` box as
+  `Int64`, which the CLR rejects, so `(long x)` and `(int x)` on a boxed
+  `UInt64` convert instead of throwing `InvalidCastException`
 
 # Changes to ClojureCLR in Version 1.11.0-flybot3
 
