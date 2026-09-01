@@ -16,9 +16,13 @@ See [CHANGES_FLYBOT.md](CHANGES_FLYBOT.md). Upstream's own changelog,
 
 ## Releases
 
-The release flow is a work in progress; see
-[docs/Preparing-a-release.md](docs/Preparing-a-release.md) for creating one locally.
-Currently, these files are released:
+Pushing a `clojure-<version>` tag runs
+[`.github/workflows/release.yml`](.github/workflows/release.yml), which builds and
+tests net462, then publishes a GitHub Release whose notes are the matching
+`CHANGES_FLYBOT.md` section. See
+[docs/Preparing-a-release.md](docs/Preparing-a-release.md) for the steps it needs
+beforehand, and for the zips and the NuGet push it does not cover. Each release
+carries:
 
 - `Clojure.dll`: the net462 `ILMerge`-d assembly. The runtime, compiler
   and 39 standard-library namespaces are AOT-compiled into this. Use this in
@@ -33,6 +37,10 @@ Currently, these files are released:
   and the DLR assemblies back CLR interop.
 - `Clojure.<version>.nupkg`: the NuGet package, which resolves those
   dependencies itself.
+- `Clojure.Main.<version>.nupkg`: the `Clojure.Main` .NET tool. Install it with
+  `dotnet tool install clojure.main --version <version> --add-source <dir>` to
+  put this fork's runtime on PATH, which is how dmiller's `cljr` CLI picks the
+  runtime it invokes.
 
 ## Building from source
 
