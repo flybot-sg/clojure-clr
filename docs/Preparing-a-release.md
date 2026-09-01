@@ -11,9 +11,11 @@ Two paths are documented here.  The automated path builds, tests, and publishes 
 * Cross-checks the two version files against each other and against the tag
 * Runs the net462 test suite in `Release` -- `tests.yml` does not cover net462, so this is the only CI that exercises the AOT-compiled standard library and the `genclass`/`attributes`/`compilation` test namespaces.
 * Runs `PackAll` and `ILMerge462`, then verifies that the `Clojure.dll` inside `lib/net462` of the nupkg is the ILMerged assembly.
-* Publishes a GitHub Release attaching `Clojure.dll`, `Clojure.Source.dll`, and the nupkg.
+* Installs the staged `Clojure.Main` tool package and runs it, failing the release unless the runtime reports the tagged version.
+* Reads the release body out of the `CHANGES_FLYBOT.md` section whose heading names the tagged version, and fails when no section matches.
+* Publishes a GitHub Release attaching `Clojure.dll`, `Clojure.Source.dll`, the five runtime dependency DLLs, `Clojure.<version>.nupkg` and `Clojure.Main.<version>.nupkg`.
 
-To use it: do **Preparation** step 1 below, commit, then tag and push. This publishes net462 only.  The other frameworks' zips and the NuGet push are still manual -- see below.
+To use it: set the version in both files listed under **Preparation** below, drop the `(unreleased)` marker from that version's `CHANGES_FLYBOT.md` heading, commit, then tag and push. This publishes net462 only.  The other frameworks' zips and the NuGet push are still manual -- see below.
 
 ## Preparation
 
