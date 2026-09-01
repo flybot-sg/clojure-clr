@@ -42,6 +42,11 @@ carries:
   put this fork's runtime on PATH, which is how dmiller's `cljr` CLI picks the
   runtime it invokes.
 
+## Contributing
+
+Branch, issue, PR, commit and changelog conventions are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Building from source
 
 For the build process, see the
