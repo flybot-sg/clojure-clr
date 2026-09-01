@@ -62,6 +62,28 @@
               (platform-newlines "WARNING: (slurp f enc) is deprecated, use (slurp f :encoding enc).\n")
               (with-out-str
                 (is (= content (slurp f utf16))))))))))
+
+(deftest test-spit-truncates
+  (with-temp-file [f]
+    (spit f "DATA-PRESENT")
+    (spit f "AB")
+    (is (= "AB" (slurp f))))
+  (with-temp-file [f]
+    (spit f "DATA-PRESENT")
+    (spit f nil)
+    (is (= "" (slurp f)))))
+
+(deftest test-spit-append
+  (with-temp-file [f]
+    (spit f "AAA")
+    (spit f "BBB" :append true)
+    (is (= "AAABBB" (slurp f)))))
+
+(deftest test-spit-file-mode-overrides
+  (with-temp-file [f]
+    (spit f "AAA")
+    (spit f "BBB" :file-mode FileMode/Append)
+    (is (= "AAABBB" (slurp f)))))
   
 (deftest test-streams-defaults
   (let [f (temp-file "test-reader-writer")
