@@ -18,6 +18,10 @@ were taken.
   instead of `FileMode/OpenOrCreate` for every write, so `spit` and `writer`
   truncate the file they overwrite and `:append` appends, like JVM Clojure,
   instead of writing at position 0 and dropping the option
+* [#29](https://github.com/flybot-sg/clojure-clr/issues/29) `fp-str` formats
+  Double and Single with `"R"` and the invariant culture instead of `str`, so
+  on .NET Framework and Mono, where the default format emits 15 significant
+  digits, a printed double reads back equal instead of losing its last digits
 * [#33](https://github.com/flybot-sg/clojure-clr/pull/33) `RT.longCast(object)`
   converts the matched `ulong` local instead of unboxing the `UInt64` box as
   `Int64`, which the CLR rejects, so `(long x)` and `(int x)` on a boxed
