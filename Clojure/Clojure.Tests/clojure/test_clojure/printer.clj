@@ -210,3 +210,14 @@
 (deftest print-object-uses-fully-qualified-class-name
   (is (re-find #"#object\[clojure\.lang\.Atom " (pr-str (atom 1))))
   (is (re-find #"#object\[System\.Text\.StringBuilder " (pr-str (System.Text.StringBuilder.)))))
+
+(defn- throwing-frame []
+  (let [e (try (throw (ex-info "boom" {})) (catch Exception ex ex))]
+    (aget (.GetFrames (System.Diagnostics.StackTrace. e true)) 0)))
+
+(deftest stack-frame-names-the-declaring-type
+  (let [frame (throwing-frame)]
+    (is (re-find #"^clojure\.test_clojure\.printer\$throwing_frame"
+                 (str (first (StackTraceElement->vec frame)))))
+    (is (re-find #"^\[clojure\.test_clojure\.printer\$throwing_frame" (pr-str frame))))
+  (is (nil? (StackTraceElement->vec nil))))

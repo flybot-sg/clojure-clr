@@ -27,6 +27,21 @@ were taken.
   `Int64`, which the CLR rejects, so `(long x)` and `(int x)` on a boxed
   `UInt64` convert instead of throwing `InvalidCastException`
 
+## Backports
+
+### Stack frame printing ([#40](https://github.com/flybot-sg/clojure-clr/pull/40))
+
+* [CLJCLR-162](https://clojure.atlassian.net/browse/CLJCLR-162)
+  ([fffa5e35](https://github.com/clojure/clojure-clr/commit/fffa5e35))
+  `print-method` and `StackTraceElement->vec` read the declaring type of the
+  frame's method, through a new `stack-frame-info`, instead of `(.GetType o)`,
+  which is always `System.Diagnostics.StackFrame`, so a printed frame and every
+  `Throwable->map` `:at` and `:trace` entry name the code that ran
+* [CLJCLR-183](https://clojure.atlassian.net/browse/CLJCLR-183)
+  ([30047284](https://github.com/clojure/clojure-clr/commit/30047284)) A frame
+  whose method reports no declaring type prints `<Unknown type>` instead of
+  throwing `NullReferenceException`
+
 # Changes to ClojureCLR in Version 1.11.0-flybot3
 
 ## Fixes
