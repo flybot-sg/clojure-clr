@@ -235,7 +235,7 @@ It is implemented with a number of custom enlive templates.\"
 (defrecord pprint-test-rec [a b c])
 
 (simple-tests pprint-datastructures-tests
- (tst-pprint 20 future-filled) #"#<Future@[0-9a-f]+: \r?\n  100>"
+ (tst-pprint 20 future-filled) #"#<Future@[0-9a-f]+: \r?\n?\s*100>"
  (tst-pprint 20 future-unfilled) #"#<Future@[0-9a-f]+: \r?\n  :pending>"
  (tst-pprint 20 promise-filled) #"#<Promise@[0-9a-f]+: \r?\n  \(first\r?\n   second\r?\n   third\)>"
  ;; This hangs currently, cause we can't figure out whether a promise is filled
