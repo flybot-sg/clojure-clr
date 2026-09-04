@@ -9,6 +9,18 @@ still under Backports.
 upstream commit it came from. *(partial)* means only some hunks of that commit
 were taken.
 
+# Changes to ClojureCLR in Version 1.11.0-flybot5 (unreleased)
+
+## Backports
+
+### Keyword to symbol ([#44](https://github.com/flybot-sg/clojure-clr/pull/44))
+
+* [CLJCLR-145](https://clojure.atlassian.net/browse/CLJCLR-145)
+  ([86578fcc](https://github.com/clojure/clojure-clr/commit/86578fcc))
+  `Keyword` declares its `Symbol` property `public` instead of `internal`, so
+  the arity-1 `symbol` call site in `core.clj` binds it and `(symbol :foo)`
+  returns `foo` instead of throwing `MissingMethodException`
+
 # Changes to ClojureCLR in Version 1.11.0-flybot4
 
 ## Fixes

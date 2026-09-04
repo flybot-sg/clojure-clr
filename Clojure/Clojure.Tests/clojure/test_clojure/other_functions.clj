@@ -50,6 +50,13 @@
        "bar" 'bar
        "quux" "quux"))
 
+(deftest test-symbol
+  (are [x y] (= x (symbol y))
+       'foo :foo
+       'a/b :a/b
+       'bar 'bar
+       'quux "quux"))
+
 (deftest test-fnil
   (let [f1 (fnil vector :a)
         f2 (fnil vector :a :b)
