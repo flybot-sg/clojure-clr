@@ -7,7 +7,20 @@
 (deftest t-split
   (is (= ["a" "b"] (s/split "a-b" #"-")))
   (is (= ["a" "b-c"] (s/split "a-b-c" #"-" 2)))
-  (is (vector? (s/split "abc" #"-"))))
+  (is (vector? (s/split "abc" #"-")))
+  (is (= ["a" "b"] (s/split "a b " #" ")))
+  (is (= ["a"] (s/split "a,," #",")))
+  (is (= [] (s/split "," #",")))
+  (is (= [""] (s/split "" #",")))
+  (is (= ["a" "" "b"] (s/split "a,,b" #",")))
+  (is (= ["a" "b"] (s/split "a b " #" " 0)))
+  (is (= ["a" "b" ""] (s/split "a b " #" " -1)))
+  (is (= ["a" "b" "c"] (s/split "abc" #"")))
+  (is (= ["a" "b" "c" ""] (s/split "abc" #"" -1)))
+  (is (= [""] (s/split "" #"")))
+  (is (= ["" "a"] (s/split ",a" #",")))
+  (is (= ["" "" "a"] (s/split "XaX" #"X*")))
+  (is (= ["a" "" "b" "" "c"] (s/split "aXbXc" #"X*"))))
 
 (deftest t-reverse
   (is (= "tab" (s/reverse "bat"))))
@@ -145,7 +158,14 @@
   (let [result (s/split-lines "one\ntwo\r\nthree")]
     (is (= ["one" "two" "three"] result))
     (is (vector? result)))
-  (is (= (list "foo") (s/split-lines "foo"))))
+  (is (= (list "foo") (s/split-lines "foo")))
+  (is (= ["a" "b"] (s/split-lines "a\nb\n")))
+  (is (= ["a" "b"] (s/split-lines "a\r\nb\r\n")))
+  (is (= [""] (s/split-lines "")))
+  (is (= [] (s/split-lines "\n")))
+  (is (= [] (s/split-lines "\n\n")))
+  (is (= ["foo"] (s/split-lines "foo\n\n")))
+  (is (= ["" "bar"] (s/split-lines "\nbar"))))
 
   (deftest t-index-of
   (let [sb  "tacos"]                                        ;;;  (StringBuffer. "tacos")  We don't have CharSequence, no need to work with a StringBuilder here

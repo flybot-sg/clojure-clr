@@ -11,6 +11,14 @@ were taken.
 
 # Changes to ClojureCLR in Version 1.11.0-flybot5 (unreleased)
 
+## Fixes
+
+* [#46](https://github.com/flybot-sg/clojure-clr/pull/46) `split` now matches JVM
+  Clojure. It drops trailing empty strings, so `(split "a b " #" ")` returns
+  `["a" "b"]`. A negative limit returns every part instead of throwing
+  `ArgumentOutOfRangeException`. It also drops an empty first part, so
+  `(split "abc" #"")` returns `["a" "b" "c"]`
+
 ## Backports
 
 ### Keyword to symbol ([#44](https://github.com/flybot-sg/clojure-clr/pull/44))
