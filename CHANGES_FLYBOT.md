@@ -18,6 +18,13 @@ were taken.
   `["a" "b"]`. A negative limit returns every part instead of throwing
   `ArgumentOutOfRangeException`. It also drops an empty first part, so
   `(split "abc" #"")` returns `["a" "b" "c"]`
+* [#48](https://github.com/flybot-sg/clojure-clr/pull/48) `Util.hasheq` hashes a
+  string with Java's `String.hashCode`, not .NET's randomized
+  `String.GetHashCode`. `APersistentMap/mapHasheq` returns
+  `Murmur3.HashUnordered`, not the pre-1.6 sum of XORs, which the `defrecord`
+  macro bakes into every record's `hasheq`. `(hash "0ca")` returns the JVM's
+  `-1465009350` in every process, and so do records and maps. `keys` walks a
+  string-keyed map in the JVM's order
 
 ## Backports
 

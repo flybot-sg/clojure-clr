@@ -41,9 +41,17 @@ namespace clojure.lang
                 return Numbers.hasheq(o);
 
             if (o is string s)
-                return Murmur3.HashInt(s.GetHashCode());
+                return Murmur3.HashInt(JavaStringHashCode(s));
 
             return o.GetHashCode();
+        }
+
+        private static int JavaStringHashCode(string s)
+        {
+            int h = 0;
+            for (int i = 0; i < s.Length; i++)
+                h = unchecked(31 * h + s[i]);
+            return h;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "ClojureJVM name match")]
