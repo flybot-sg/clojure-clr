@@ -1215,6 +1215,19 @@
     (is (= (hash s)
            (hash-unordered unique-elem)))))	  
 
+;; Values taken from JVM Clojure 1.11.0.
+(deftest hash-matches-jvm
+  (are [x y] (= x y)
+    0            (hash "")
+    -1465009350  (hash "0ca")
+    2042478965   (hash "clojure.spec.alpha")
+    -1232035677  (hash :abc)
+    408495850    (hash 'abc)
+    858935129    (hash {:a 1 :b "x"})
+    -1719679590  (hash #{"a" "b" "c"})
+    -757264838   (hash ["a" "b"])
+    -757264838   (hash (list "a" "b"))))
+
 (deftest ireduce-reduced
   (let [f (fn [_ a] (if (= a 5) (reduced "foo")))]
     (is (= "foo" (.reduce ^clojure.lang.IReduce (list 1 2 3 4 5) f)))
@@ -1330,6 +1343,9 @@
     (is (= (hash (->Rec 1 1)) (hash (assoc r :a 1))))
     (is (= (hash (->Rec 1 1)) (hash (dissoc r2 :c))))
     (is (= (hash (->Rec 1 1)) (hash (dissoc (assoc r :c 1) :c))))))  
+
+(deftest record-hash-matches-jvm
+  (is (= -395741571 (hash (->Rec 1 "x")))))
 
 (deftest singleton-map-in-destructure-context
   (let [sample-map {:a 1 :b 2}

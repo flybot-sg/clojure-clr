@@ -461,13 +461,7 @@ namespace clojure.lang
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "ClojureJVM name match")]
         public static int mapHasheq(IPersistentMap m)
         {
-            int hash = 0;
-            for (ISeq s = m.seq(); s != null; s = s.next())
-            {
-                IMapEntry e = (IMapEntry)s.first();
-                hash += Util.hasheq(e.key()) ^ Util.hasheq(e.val());
-            }
-            return hash;
+            return Murmur3.HashUnordered(m);
         }
 
         #endregion
