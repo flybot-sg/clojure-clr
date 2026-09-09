@@ -9,7 +9,7 @@ still under Backports.
 upstream commit it came from. *(partial)* means only some hunks of that commit
 were taken.
 
-# Changes to ClojureCLR in Version 1.11.0-flybot5 (unreleased)
+# Changes to ClojureCLR in Version 1.11.0-flybot5
 
 ## Fixes
 
